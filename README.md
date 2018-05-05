@@ -2,12 +2,12 @@
 
 `vue-jwt` is a event-based library for storing and managing a JWT session token.
 
-Include automatic expiration management when a token is set, if it contains an expire time field `exp` a timeout will be set. When the expired time is reached it will fire `#.emit('expired')` and set the token to undefined. 
+Include automatic expiration management when a token is set, if it contains the `exp` field an experation timeout and the cookie expire time will be set. When the expired time is reached it will fire `#.emit('expired')` and set the token to undefined. 
 
 # Installing
 
 ```
-npm i vue-jwt
+npm i xkisu/vue-jwt
 ```
 
 # Usage Example
@@ -16,7 +16,7 @@ npm i vue-jwt
 // src/jwt/index.js
 
 import Vue from 'vue'
-import { VueJWT } from 'vue-jwt'
+import VueJWT from 'vue-jwt'
 
 Vue.use(VueJWT)
 
@@ -55,8 +55,24 @@ And then somewhere in your router.
 
 ```javascript
 ...
+import jwt from '@/jwt'
+...
 
-Vue.$jwt.on('changed', () => {
+router.beforeEach((to, from, next) => {
+  if (to.name !== 'login' && to.name !== 'signup') {
+    if (!jwt.getToken()) {
+      return next({
+        path: 'login',
+        query: {
+          message: 'Session expired'
+        }
+      })
+    }
+  }
+  next()
+})
+
+jwt.on('changed', () => {
   router.push({
     name: 'dashboard',
     query: {
@@ -65,7 +81,7 @@ Vue.$jwt.on('changed', () => {
   })
 })
 
-Vue.$jwt.on('expired', () => {
+jwt.on('expired', () => {
   router.push({
     name: 'login',
     query: {
