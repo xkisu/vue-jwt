@@ -62,7 +62,7 @@ router.beforeEach((to, from, next) => {
   if (to.name !== 'login' && to.name !== 'signup') {
     if (!jwt.getToken()) {
       return next({
-        path: 'login',
+        name: 'login',
         query: {
           message: 'Session expired'
         }
